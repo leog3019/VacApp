@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { 
   ShoppingCart, 
   Star, 
@@ -7,10 +9,18 @@ import {
   Shield, 
   Code,
   Share2,
-  Crown
+  Crown,
+  User
 } from 'lucide-react';
+import { useAuth } from './contexts/AuthContext';
+import AuthModal from './components/AuthModal';
+import UserDashboard from './components/UserDashboard';
 
 function App() {
+  const { currentUser, userProfile } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  
   // Número de WhatsApp 
   const whatsappNumber = "+593987511899"; // Formato internacional sin espacios
   
@@ -29,9 +39,36 @@ function App() {
   
   // Función para unirse a un servicio específico
   const handleJoinService = (serviceName: string, price: string) => {
+    if (!currentUser) {
+      setAuthMode('signup');
+      setShowAuthModal(true);
+      return;
+    }
+    
     const message = `¡Hola! Me interesa unirme al servicio de ${serviceName} por ${price}/mes. ¿Hay espacios disponibles?`;
     openWhatsApp(message);
   };
+
+  const handleLoginClick = () => {
+    setAuthMode('login');
+    setShowAuthModal(true);
+  };
+
+  const handleSignupClick = () => {
+    setAuthMode('signup');
+    setShowAuthModal(true);
+  };
+
+  // Si el usuario está autenticado, mostrar el dashboard
+  if (currentUser && userProfile) {
+    return (
+      <Routes>
+        <Route path="/" element={<UserDashboard />} />
+        <Route path="/dashboard" element={<UserDashboard />} />
+        <Route path="*" element={<UserDashboard />} />
+      </Routes>
+    );
+  }
   const platforms = [
     {
       name: "Netflix Premium",
@@ -140,9 +177,21 @@ function App() {
               <button className="text-purple-200 hover:text-white transition-colors">
                 <ShoppingCart className="w-6 h-6" />
               </button>
-              <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105">
-                Iniciar Sesión
-              </button>
+              {currentUser ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-white font-medium">{userProfile?.displayName}</span>
+                </div>
+              ) : (
+                <button 
+                  onClick={handleLoginClick}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105"
+                >
+                  Iniciar Sesión
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -172,11 +221,11 @@ function App() {
                 <ArrowRight className="w-5 h-5" />
               </button>
               <button 
-                onClick={handleGeneralContact}
+                onClick={currentUser ? handleGeneralContact : handleSignupClick}
                 className="border-2 border-green-400 text-green-300 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-green-800/20 transition-all duration-300 flex items-center space-x-2"
               >
                 <MessageCircle className="w-5 h-5" />
-                <span>Contactar por WhatsApp</span>
+                <span>{currentUser ? 'Contactar por WhatsApp' : 'Únete Ahora'}</span>
               </button>
             </div>
 
@@ -564,6 +613,13 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Modal de Autenticación */}
+      <AuthModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialMode={authMode}
+      />
     </div>
   );
 }
