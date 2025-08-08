@@ -16,6 +16,7 @@ export interface UserProfile {
   uid: string;
   email: string;
   displayName: string;
+  phoneNumber: string;
   subscriptions: Subscription[];
   createdAt: Date;
 }
@@ -34,7 +35,7 @@ interface AuthContextType {
   currentUser: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
-  signup: (email: string, password: string, displayName: string) => Promise<void>;
+  signup: (email: string, password: string, displayName: string, phoneNumber: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   addSubscription: (subscription: Omit<Subscription, 'id'>) => Promise<void>;
@@ -56,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   // Registro de usuario
-  const signup = async (email: string, password: string, displayName: string) => {
+  const signup = async (email: string, password: string, displayName: string, phoneNumber: string) => {
     const { user } = await createUserWithEmailAndPassword(auth, email, password);
     
     // Actualizar perfil con nombre
@@ -67,6 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       uid: user.uid,
       email: user.email!,
       displayName,
+      phoneNumber,
       subscriptions: [],
       createdAt: new Date()
     };
@@ -134,7 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return unsubscribe;
   }, []);
 
-  const value: AuthContextType = {
+  const value = React.useMemo<AuthContextType>(() => ({
     currentUser,
     userProfile,
     loading,
@@ -142,7 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     logout,
     addSubscription
-  };
+  }), [currentUser, userProfile, loading]);
 
   return (
     <AuthContext.Provider value={value}>

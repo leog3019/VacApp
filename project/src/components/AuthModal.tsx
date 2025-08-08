@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -32,7 +34,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
           setError('El nombre es requerido');
           return;
         }
-        await signup(email, password, displayName);
+        if (!phoneNumber.trim()) {
+          setError('El número de WhatsApp es requerido');
+          return;
+        }
+        if (!phoneNumber.startsWith('+593')) {
+          setError('El número debe comenzar con +593');
+          return;
+        }
+        await signup(email, password, displayName, phoneNumber);
       }
       onClose();
       resetForm();
@@ -68,6 +78,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
     setEmail('');
     setPassword('');
     setDisplayName('');
+    setPhoneNumber('');
     setError('');
     setShowPassword(false);
   };
@@ -95,7 +106,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
         {/* Header */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-400 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-            <User className="w-8 h-8 text-white" />
+            <img src={logo} alt="Logo" className="w-12 h-12 object-contain" />
           </div>
           <h2 className="text-3xl font-bold text-white mb-2">
             {mode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}
@@ -119,28 +130,51 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
           {/* Nombre (solo en registro) */}
           {mode === 'signup' && (
-            <div className="space-y-2">
-              <label className="text-purple-200 text-sm font-medium">Nombre completo</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-purple-400" />
-                <input
-                  type="text"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-white/5 border border-purple-500/20 rounded-lg text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 transition-colors"
-                  placeholder="Tu nombre completo"
-                  required
-                />
+            <>
+              <div className="space-y-2">
+                <label htmlFor="displayName" className="text-purple-200 text-sm font-medium">Nombre completo</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-purple-400" />
+                  <input
+                    id="displayName"
+                    type="text"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 bg-white/5 border border-purple-500/20 rounded-lg text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 transition-colors"
+                    placeholder="Tu nombre completo"
+                    required
+                  />
+                </div>
               </div>
-            </div>
+              <div className="space-y-2">
+                <label htmlFor="phoneNumber" className="text-purple-200 text-sm font-medium">Número de WhatsApp</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-400">📱</span>
+                  <input
+                    id="phoneNumber"
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9+]/g, '');
+                      setPhoneNumber(value);
+                    }}
+                    className="w-full pl-12 pr-4 py-3 bg-white/5 border border-purple-500/20 rounded-lg text-white placeholder-purple-300 focus:outline-none focus:border-purple-400 transition-colors"
+                    placeholder="+593987654321"
+                    required
+                  />
+                </div>
+                <p className="text-purple-300 text-xs">Formato: +593 seguido de tu número</p>
+              </div>
+            </>
           )}
 
           {/* Email */}
           <div className="space-y-2">
-            <label className="text-purple-200 text-sm font-medium">Email</label>
+            <label htmlFor="email" className="text-purple-200 text-sm font-medium">Email</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-purple-400" />
               <input
+                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -153,10 +187,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'l
 
           {/* Contraseña */}
           <div className="space-y-2">
-            <label className="text-purple-200 text-sm font-medium">Contraseña</label>
+            <label htmlFor="password" className="text-purple-200 text-sm font-medium">Contraseña</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-purple-400" />
               <input
+                id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

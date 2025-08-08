@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   User, 
@@ -12,13 +12,26 @@ import {
   AlertCircle,
   MessageCircle
 } from 'lucide-react';
+import ServicesModal from './ServicesModal';
 
 const UserDashboard: React.FC = () => {
   const { userProfile, logout, currentUser } = useAuth();
+  const [showServicesModal, setShowServicesModal] = useState(false);
+  const [servicesModalMode, setServicesModalMode] = useState<'explore' | 'add'>('explore');
 
   if (!userProfile || !currentUser) {
     return null;
   }
+
+  const handleOpenExploreServices = () => {
+    setServicesModalMode('explore');
+    setShowServicesModal(true);
+  };
+
+  const handleOpenAddService = () => {
+    setServicesModalMode('add');
+    setShowServicesModal(true);
+  };
 
   const handleLogout = async () => {
     try {
@@ -93,16 +106,11 @@ const UserDashboard: React.FC = () => {
               <div>
                 <h1 className="text-3xl font-bold text-white">¡Hola, {userProfile.displayName}!</h1>
                 <p className="text-purple-200">{userProfile.email}</p>
-                <p className="text-purple-300 text-sm">
-                  Miembro desde {formatDate(userProfile.createdAt)}
-                </p>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
-              <button className="p-2 text-purple-200 hover:text-white transition-colors">
-                <Settings className="w-6 h-6" />
-              </button>
+              
               <button 
                 onClick={handleLogout}
                 className="bg-red-500/20 text-red-300 px-4 py-2 rounded-lg font-medium hover:bg-red-500/30 transition-colors flex items-center space-x-2"
@@ -158,7 +166,9 @@ const UserDashboard: React.FC = () => {
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-purple-500/20 p-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-white">Mis Suscripciones</h2>
-            <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center space-x-2">
+            <button 
+              onClick={handleOpenAddService}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 flex items-center space-x-2">
               <MessageCircle className="w-4 h-4" />
               <span>Agregar Servicio</span>
             </button>
@@ -173,7 +183,9 @@ const UserDashboard: React.FC = () => {
               <p className="text-purple-200 mb-6">
                 Comienza a ahorrar agregando tu primera suscripción compartida
               </p>
-              <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300">
+              <button 
+                onClick={handleOpenExploreServices}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300">
                 Explorar Servicios
               </button>
             </div>
@@ -225,6 +237,13 @@ const UserDashboard: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Modal de Servicios */}
+      <ServicesModal 
+        isOpen={showServicesModal}
+        onClose={() => setShowServicesModal(false)}
+        mode={servicesModalMode}
+      />
     </div>
   );
 };

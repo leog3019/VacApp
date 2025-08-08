@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { 
-  ShoppingCart, 
   Star, 
   Check, 
   ArrowRight, 
@@ -12,6 +11,7 @@ import {
   Crown,
   User
 } from 'lucide-react';
+import logo from './assets/logo.png';
 import { useAuth } from './contexts/AuthContext';
 import AuthModal from './components/AuthModal';
 import UserDashboard from './components/UserDashboard';
@@ -158,7 +158,7 @@ function App() {
             <div className="flex items-center">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
-                  <Code className="w-5 h-5 text-white" />
+                  <img src={logo} alt="Logo" className="w-6 h-6 object-contain" />
                 </div>
                 <span className="text-2xl font-bold text-white">VacApp</span>
               </div>
@@ -166,17 +166,37 @@ function App() {
             
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
-                <a href="#" className="text-purple-200 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Inicio</a>
-                <a href="#" className="text-purple-200 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Plataformas</a>
-                <a href="#" className="text-purple-200 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Precios</a>
-                <a href="#" className="text-purple-200 hover:text-white px-3 py-2 text-sm font-medium transition-colors">Contacto</a>
+                <a 
+                  href="#" 
+                  onClick={() => document.getElementById('servicios')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="text-purple-200 hover:text-white px-3 py-2 text-sm font-medium transition-colors"
+                >
+                  Inicio
+                </a>
+                <a 
+                  href="#plataformas" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('plataformas')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="text-purple-200 hover:text-white px-3 py-2 text-sm font-medium transition-colors"
+                >
+                  Plataformas
+                </a>
+                <a 
+                  href="#contacto"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('contacto')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="text-purple-200 hover:text-white px-3 py-2 text-sm font-medium transition-colors"
+                >
+                  Contacto
+                </a>
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <button className="text-purple-200 hover:text-white transition-colors">
-                <ShoppingCart className="w-6 h-6" />
-              </button>
+            <div className="flex items-center">
               {currentUser ? (
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
@@ -444,7 +464,7 @@ function App() {
       </section>
 
       {/* WhatsApp CTA Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-green-600/20 to-green-500/20">
+      <section id="contacto" className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-green-600/20 to-green-500/20">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-green-500 rounded-full mb-8">
             <MessageCircle className="w-10 h-10 text-white" />
@@ -476,7 +496,7 @@ function App() {
       </section>
 
       {/* Available Services */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8">
+      <section id="plataformas" className="py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
@@ -487,7 +507,7 @@ function App() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6">
             {[
               { name: "Netflix", color: "bg-red-500" },
               { name: "Spotify", color: "bg-green-500" },
@@ -497,10 +517,6 @@ function App() {
               { name: "YouTube Premium", color: "bg-red-600" },
               { name: "Apple Music", color: "bg-gray-800" },
               { name: "Paramount+", color: "bg-blue-700" },
-              { name: "Crunchyroll", color: "bg-orange-500" },
-              { name: "Adobe Creative", color: "bg-red-700" },
-              { name: "Canva Pro", color: "bg-purple-500" },
-              { name: "Microsoft 365", color: "bg-blue-500" }
             ].map((service, index) => (
               <div 
                 key={index}
